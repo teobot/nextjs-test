@@ -3,7 +3,7 @@
 
 > a testing repo for nextjs, my first attempts
 
-### 🏠 [Homepage](placeholder)
+### 🏠 [Homepage](https://github.com/teobot/nextjs-test)
 
 ### ✨ [Demo](placeholder)
 
