@@ -1,14 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import Head from "next/head";
 
 import Layout from "../components/Layout";
 
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+import { DeleteForever } from "@mui/icons-material";
+import TextField from "@mui/material/TextField";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Rating from "@mui/material/Rating";
+
 import { connectToDatabase } from "../util/mongodb";
 
 export default function Movies({ movies }) {
   const [title, setTitle] = useState("");
-  const [metacritic, setMetacritic] = useState(0);
+  const [metacritic, setMetacritic] = useState(5);
   const [plot, setPlot] = useState("");
   const [movieList, setMovieList] = useState(movies);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +61,7 @@ export default function Movies({ movies }) {
       const postResJson = await postRes.json();
 
       setMovieList([...movieList, postResJson.movie]);
-      setMetacritic(0);
+      setMetacritic(5);
       setPlot("");
       setTitle("");
     } catch (error) {
@@ -58,100 +72,111 @@ export default function Movies({ movies }) {
 
   return (
     <Layout>
-      <Head>
-        <title>Movies</title>
-      </Head>
-      <h1>Top 20 Movies of All Time</h1>
-      <p>
-        <small>(According to Metacritic)</small>
-      </p>
-      {/* USER MOVIE INPUT FORM */}
-      <form onSubmit={async (e) => {}}>
-        <div className="form-group">
-          <label htmlFor="title">Title</label>
-          <input
-            type="text"
-            className="form-control"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="metacritic">Metacritic</label>
-          <input
-            type="number"
-            className="form-control"
-            id="metacritic"
-            value={metacritic}
-            onChange={(e) => setMetacritic(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="plot">Plot</label>
-          <textarea
-            className="form-control"
-            id="plot"
-            value={plot}
-            onChange={(e) => setPlot(e.target.value)}
-          />
-        </div>
-        <button
-          onClick={handleMovieSubmit}
-          type="submit"
-          className="btn btn-primary"
-          disabled={isLoading}
-        >
-          Submit
-        </button>
-      </form>
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <Head>
+            <title>Movies</title>
+          </Head>
+          <Typography variant="h3">My Logged Movies</Typography>
+        </Grid>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>metacritic</th>
-            <th>plot</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          {movieList.map((movie) => (
-            <tr key={movie._id}>
-              <td>{movie.title}</td>
-              <td>{movie.metacritic}</td>
-              <td>{movie.plot}</td>
-              <td>
-                <button
-                  onClick={() => deleteMovie(movie._id)}
-                  type="button"
-                  className="btn btn-danger"
+        <Grid item xs={12}>
+          <Paper
+            elevation={2}
+            style={{ width: "100%", padding: 25, margin: "0px 0px 10px 0px" }}
+          >
+            <Grid container spacing={2}>
+              <Grid
+                item
+                xs={6}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <TextField
+                  fullWidth
+                  id="filled-basic"
+                  label="Movie Title"
+                  variant="filled"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+
+                <div>
+                  <Typography component="legend">Movie Rating</Typography>
+                  <Rating
+                    onChange={(event, newValue) => {
+                      setMetacritic(newValue);
+                    }}
+                    name="customized-10"
+                    value={metacritic}
+                    min={0}
+                    max={10}
+                  />
+                </div>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  variant="filled"
+                  id="outlined-multiline-static"
+                  label="Movie Plot"
+                  multiline
+                  rows={4}
+                  value={plot}
+                  onChange={(e) => setPlot(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} align="right">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleMovieSubmit}
+                  disabled={isLoading}
                 >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <style jsx>{`
-        table {
-          font-family: arial, sans-serif;
-          border-collapse: collapse;
-          width: 100%;
-        }
+                  {isLoading ? "Loading..." : "Add Movie"}
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
 
-        td,
-        th {
-          border: 1px solid #dddddd;
-          text-align: left;
-          padding: 8px;
-        }
-
-        tr:nth-child(even) {
-          background-color: #eee;
-        }
-      `}</style>
+        <Grid item xs={12}>
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Metacritic Rating</TableCell>
+                  <TableCell>Plot</TableCell>
+                  <TableCell align="right">Options</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {movieList.map((movie) => (
+                  <TableRow
+                    key={movie._id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {movie.title}
+                    </TableCell>
+                    <TableCell>{movie.metacritic}</TableCell>
+                    <TableCell>{movie.plot}</TableCell>
+                    <TableCell align="right">
+                      <Button onClick={() => deleteMovie(movie._id)}>
+                        <DeleteForever />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
     </Layout>
   );
 }
