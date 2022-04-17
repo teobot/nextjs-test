@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 
+import Head from "next/head";
+
+import Layout from "../components/Layout";
+
 import { connectToDatabase } from "../util/mongodb";
 
 export default function Movies({ movies }) {
@@ -28,7 +32,7 @@ export default function Movies({ movies }) {
     setIsLoading(true);
     e.preventDefault();
     try {
-      const postRes = await fetch("/api/movies/postMovie", {
+      const postRes = await fetch("/api/movies/insert/movie", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +57,10 @@ export default function Movies({ movies }) {
   };
 
   return (
-    <div>
+    <Layout>
+      <Head>
+        <title>Movies</title>
+      </Head>
       <h1>Top 20 Movies of All Time</h1>
       <p>
         <small>(According to Metacritic)</small>
@@ -145,7 +152,7 @@ export default function Movies({ movies }) {
           background-color: #eee;
         }
       `}</style>
-    </div>
+    </Layout>
   );
 }
 export async function getServerSideProps() {
